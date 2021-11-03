@@ -9,7 +9,13 @@
         <li><a href="/" class="nav-link px-2 text-white">Home</a></li>
         <li><a href="/about" class="nav-link px-2 text-white">About</a></li>
         <li><a href="/articles" class="nav-link px-2 text-white">Articles</a></li>    
-        <li><a href="/register" class="nav-link px-2 text-white">Register</a></li>             
+        {% if session.logged_in %}
+        <li><a href="/dashboard" class="nav-link px-2 text-white">Dashboard</a></li>                         
+        <li><a href="/logout" class="nav-link px-2 text-white">Logout</a></li>           
+        {% else %}
+        <li><a href="/register" class="nav-link px-2 text-white">Register</a></li>  
+        <li><a href="/login" class="nav-link px-2 text-white">Login</a></li>        
+        {% endif %}
       </ul>       
     </div>
   </div>
