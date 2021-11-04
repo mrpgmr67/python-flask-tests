@@ -1,10 +1,13 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, request, logging
-#from data import Articles
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from functools import wraps
 
+# Deprecated - old way of using data.py
+# from data import Articles
+
+# Create app
 app = Flask(__name__)
 
 # Config MySQL
@@ -17,17 +20,37 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # init MYSQL
 mysql = MySQL(app)
 
-#Articles = Articles()
+# This was the old way of pulling articles from data.py
+# Articles = Articles()
 
+# User Register Form Class
+class RegisterForm(Form):
+    name = StringField('Name', validators=[validators.Length(min=1, max=50)])
+    username = StringField('Username', validators=[validators.Length(min=4, max=25)])
+    email = StringField('Email', validators=[validators.Length(min=6, max=50)])
+    password = PasswordField('Password', validators=[
+        validators.DataRequired(),
+        validators.EqualTo('confirm', message='Passwords do not match')
+    ] )
+    confirm = PasswordField('Confirm Password')
+
+#Article Form Class
+class ArticleForm(Form):
+    title = StringField('Title', validators=[validators.Length(min=1, max=200)])
+    body = TextAreaField('Body', validators=[validators.Length(min=30)])
+
+
+# Index Route
 @app.route('/')
 def index():
     return render_template('home.html')
-    
+
+# About Route
 @app.route('/about')
 def about():
     return render_template('about.html')    
 
-# All Articles
+# All Articles Route
 @app.route('/articles')
 def articles():
     # Create cursor
@@ -45,7 +68,7 @@ def articles():
     # Close connection
     cur.close()  
 
-# Single Article
+# Single Article Route
 @app.route('/article/<string:id>/')
 def article(id):
     # Create cursor
@@ -56,17 +79,7 @@ def article(id):
     article = cur.fetchone()
     return render_template('article.html', article=article)    
 
-
-class RegisterForm(Form):
-    name = StringField('Name', validators=[validators.Length(min=1, max=50)])
-    username = StringField('Username', validators=[validators.Length(min=4, max=25)])
-    email = StringField('Email', validators=[validators.Length(min=6, max=50)])
-    password = PasswordField('Password', validators=[
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords do not match')
-    ] )
-    confirm = PasswordField('Confirm Password')
-
+# User Register Route
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm(request.form)
@@ -140,7 +153,7 @@ def is_logged_in(f):
             return redirect(url_for('login'))
     return wrap
 
-# Logout
+# Logout Route
 @app.route('/logout')
 @is_logged_in
 def logout():
@@ -148,7 +161,7 @@ def logout():
     flash('You are now logged out', 'success')
     return redirect(url_for('login'))
 
-# Dashboard
+# Dashboard Route
 @app.route('/dashboard')
 @is_logged_in
 def dashboard():
@@ -167,12 +180,7 @@ def dashboard():
     # Close connection
     cur.close()  
 
-#Article Form Class
-class ArticleForm(Form):
-    title = StringField('Title', validators=[validators.Length(min=1, max=200)])
-    body = TextAreaField('Body', validators=[validators.Length(min=30)])
-
-# Add Article
+# Add Article Route
 @app.route('/add_article', methods=['GET', 'POST'])
 @is_logged_in
 def add_article():
@@ -199,7 +207,7 @@ def add_article():
     
     return render_template('add_article.html', form=form)
 
-
+# Main Program Execution
 if __name__ == '__main__':
     app.secret_key='secret123'
     app.run(debug=True)
