@@ -14,9 +14,11 @@ To install the test suite, clone the repository and install the dependencies usi
     
 ## Usage
 To run the test suite, use the following command:
+
     pytest
     
-This will run all the tests in the test suite. You can also specify a specific file or test to run:
+This will run all the tests in the test suite. You can also specify a specific file or test to run with the command:
+    
     pytest tests/test_views.py
 
 ## Contributing
